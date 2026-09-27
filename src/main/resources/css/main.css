@@ -1,0 +1,17 @@
+
+.consola{
+    -fx-font-family: "Consolas";
+    -fx-font-size: 14px;
+    -fx-text-fill: rgb(59, 233, 24);
+    -fx-background-color: black;
+}
+
+.consola .text {
+    -fx-fill: rgb(59, 233, 24);
+    caret-color: rgb(59, 233, 24);
+    -fx-font-family: "Consolas";
+}
+
+#scene{
+    -fx-background-color: black;
+}
