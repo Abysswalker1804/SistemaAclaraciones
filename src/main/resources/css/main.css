@@ -9,9 +9,9 @@
 .consola .text {
     -fx-fill: rgb(59, 233, 24);
     caret-color: rgb(59, 233, 24);
-    -fx-font-family: "Consolas";
+    font-family: "Consolas";
 }
 
-#scene{
+.scene-console{
     -fx-background-color: black;
 }

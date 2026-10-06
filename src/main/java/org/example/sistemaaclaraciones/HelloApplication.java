@@ -21,11 +21,13 @@ public class HelloApplication extends Application {
     private TextField input;
     private String prompt="SAE > ";
     private Label lblPrompt;
+    private EstadosSAE estado_actual=EstadosSAE.BASE;
+    int inputStart;
     
     //Constantes
+    private final int lognitud_prompt_base=30;
     private final int longitud_prompt_inscr=60;
-    private EstadosSAE estado_actual=EstadosSAE.ESTADO1;
-    int inputStart;
+    private final int longitud_prompt_fin=50;
     @Override
     public void start(Stage stage) throws IOException {
         //FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
@@ -75,19 +77,44 @@ public class HelloApplication extends Application {
 
     private void procesarComando(String comando){
         String comandos_disponibles;
-        if(comando.matches(".*\\?") && EstadosSAE.ESTADO1==estado_actual){
+        if(comando.matches(".*\\?") && EstadosSAE.BASE==estado_actual){
             comandos_disponibles="""
                     Comandos disponibles:
                     \t- inscribir\n\t\tCambia a modo inscripción por si requiere inscribir una materia que ya no tiene cupos para su carrera.
                     \t- finalizar\n\t\tSi sólo necesita dar por finalizada su inscripción pero el sistema no se lo permite.
                     """;
             consola.appendText(comandos_disponibles+"\n");
-        }else if(comando.matches("(?i)inscribir")){
-            prompt="SAE (inscr) # ";
-            lblPrompt.setText(prompt);
-            consola.appendText("[MODO INSCRIPCIÓN]\n");
-            input.setPrefWidth(input.getWidth()-longitud_prompt_inscr);
-        }else {
+        }else if(comando.matches("(?i)inscribir")){ //Estado INSCRIBIR
+            if(estado_actual!=EstadosSAE.INSCRIPCION){
+                estado_actual=EstadosSAE.INSCRIPCION;
+                prompt="SAE (inscr) # ";
+                lblPrompt.setText(prompt);
+                consola.appendText("[MODO INSCRIPCIÓN]\n");
+                input.setPrefWidth(input.getWidth()-longitud_prompt_inscr);
+            }else{
+                consola.appendText("[YA SE ENCUENTRA EN MODO INSCRIPCIÓN]\n");
+            }
+        }else if(comando.matches("(?i)finalizar")){ //Estado FINALIZAR
+            if(estado_actual!=EstadosSAE.FINALIZAR){
+                estado_actual=EstadosSAE.FINALIZAR;
+                prompt="SAE (fin) # ";
+                lblPrompt.setText(prompt);
+                consola.appendText("[MODO FINALIZAR]\n");
+                input.setPrefWidth(input.getWidth()-longitud_prompt_fin);
+            }else{
+                consola.appendText("[YA SE ENCUENTRA EN MODO FINALIZAR]\n");
+            }
+        }else if(comando.matches("(?i)salir")){ //Estado BASE
+            if(estado_actual!=EstadosSAE.BASE){
+                estado_actual=EstadosSAE.BASE;
+                prompt="SAE > ";
+                lblPrompt.setText(prompt);
+                consola.appendText("[MODO BASE]\n");
+                input.setPrefWidth(input.getWidth()-lognitud_prompt_base);
+            }else{
+                consola.appendText("[YA SE ENCUENTRA EN MODO BASE]\n");
+            }
+        }else{
             consola.appendText("Comando no Reconocido!\n");
         }
     }
