@@ -76,24 +76,38 @@ public class HelloApplication extends Application {
     }
 
     private void procesarComando(String comando){
-        String comandos_disponibles;
-        if(comando.matches(".*\\?") && EstadosSAE.BASE==estado_actual){
-            comandos_disponibles="""
-                    Comandos disponibles:
-                    \t- inscribir\n\t\tCambia a modo inscripción por si requiere inscribir una materia que ya no tiene cupos para su carrera.
-                    \t- finalizar\n\t\tSi sólo necesita dar por finalizada su inscripción pero el sistema no se lo permite.
-                    """;
-            consola.appendText(comandos_disponibles+"\n");
-        }else if(comando.matches("(?i)inscribir")){ //Estado INSCRIBIR
-            if(estado_actual!=EstadosSAE.INSCRIPCION){
-                estado_actual=EstadosSAE.INSCRIPCION;
-                prompt="SAE (inscr) # ";
-                lblPrompt.setText(prompt);
-                consola.appendText("[MODO INSCRIPCIÓN]\n");
-                input.setPrefWidth(input.getWidth()-longitud_prompt_inscr);
-            }else{
-                consola.appendText("[YA SE ENCUENTRA EN MODO INSCRIPCIÓN]\n");
-            }
+        //Comandos generales
+        String comandos_disponibles="""
+            Comandos disponibles:
+            \t- inscribir\n\t\tCambia a modo inscripción por si requiere inscribir una materia que ya no tiene cupos para su carrera.
+            \t- finalizar\n\t\tSi sólo necesita dar por finalizada su inscripción pero el sistema no se lo permite.
+        """;
+        switch(estado_actual){
+            case EstadosSAE.BASE:
+                if(comando.matches(".*\\?")){
+                    consola.appendText(comandos_disponibles+"\n");
+                }else if(comando.matches("(?i)inscribir")){
+                    if(estado_actual!=EstadosSAE.INSCRIPCION){
+                        estado_actual=EstadosSAE.INSCRIPCION;
+                        prompt="SAE (inscr) # ";
+                        lblPrompt.setText(prompt);
+                        consola.appendText("[MODO INSCRIPCIÓN]\n");
+                        input.setPrefWidth(input.getWidth()-longitud_prompt_inscr);
+                    }
+                }
+                break;
+            case EstadosSAE.INSCRIPCION:
+                if(comando.matches("(?i)inscribir")){
+                    consola.appendText("[YA SE ENCUENTRA EN MODO INSCRIPCIÓN]\n");
+                }
+                break;
+            case EstadosSAE.FINALIZAR:
+                break;
+        }
+            
+            
+        if(comando.matches("(?i)inscribir")){ //Estado INSCRIBIR
+            
         }else if(comando.matches("(?i)finalizar")){ //Estado FINALIZAR
             if(estado_actual!=EstadosSAE.FINALIZAR){
                 estado_actual=EstadosSAE.FINALIZAR;
