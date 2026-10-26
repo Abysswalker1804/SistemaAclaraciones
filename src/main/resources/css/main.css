@@ -1,4 +1,6 @@
-
+.root {
+    -fx-background-color: #000000;
+}
 .consola{
     -fx-font-family: "Consolas";
     -fx-font-size: 14px;
