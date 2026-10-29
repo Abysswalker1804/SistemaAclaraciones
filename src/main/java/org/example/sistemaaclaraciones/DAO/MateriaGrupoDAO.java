@@ -10,7 +10,11 @@ import java.sql.Statement;
 public class MateriaGrupoDAO {
     private String materia;
     private String clave;
+    private byte creditos;
+    private byte semestre;
+    private byte porcentaje_req;
     private int id_grupo;
+    private byte cupo;
     private String grupo;
     private String docente;
     private byte cupo_disponible;
@@ -38,12 +42,44 @@ public class MateriaGrupoDAO {
         this.clave = clave;
     }
 
+    public byte getCreditos() {
+        return creditos;
+    }
+
+    public void setCreditos(byte creditos) {
+        this.creditos = creditos;
+    }
+
+    public byte getSemestre() {
+        return semestre;
+    }
+
+    public void setSemestre(byte semestre) {
+        this.semestre = semestre;
+    }
+
+    public byte getPorcentaje_req() {
+        return porcentaje_req;
+    }
+
+    public void setPorcentaje_req(byte porcentaje_req) {
+        this.porcentaje_req = porcentaje_req;
+    }
+
     public int getId_grupo() {
         return id_grupo;
     }
 
     public void setId_grupo(int id_grupo) {
         this.id_grupo = id_grupo;
+    }
+
+    public byte getCupo() {
+        return cupo;
+    }
+
+    public void setCupo(byte cupo) {
+        this.cupo = cupo;
     }
 
     public String getGrupo() {
@@ -127,7 +163,7 @@ public class MateriaGrupoDAO {
     }
 
     public static ObservableList<MateriaGrupoDAO> CONSULTAR_Materia(String nombreMateria){
-        String query="select m.nombre as materia, m.clave as clave, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where nombre like '%"+nombreMateria+"%'";
+        String query="select m.nombre as materia, m.clave as clave, g.id as id, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where nombre like '%"+nombreMateria+"%'";
         ObservableList<MateriaGrupoDAO>listaMat= FXCollections.observableArrayList();
         try{
             MateriaGrupoDAO objMateria;
@@ -137,6 +173,7 @@ public class MateriaGrupoDAO {
                 objMateria=new MateriaGrupoDAO();
                 objMateria.materia=res.getString("materia");
                 objMateria.clave=res.getString("clave");
+                objMateria.id_grupo=res.getInt("id");
                 objMateria.grupo=res.getString("grupo");
                 objMateria.docente=res.getString("docente");
                 objMateria.cupo_disponible=res.getByte("cupo_disponible");
@@ -184,7 +221,7 @@ public class MateriaGrupoDAO {
         return listaMat;
     }
     public static ObservableList<MateriaGrupoDAO> CONSULTAR_ID(String ID){
-        String query="select g.lunes as lun, g.martes as mar, g.miercoles as mie, g.jueves as jue, g.viernes as vie, g.sabado as sab, g.domingo as dom from grupo g where g.id='"+ID+"';";
+        String query="select m.clave as clave,g.id as id, m.nombre as materia, m.creditos as creditos, g.grupo as grupo, m.semestre as semestre, m.porcentaje_req as porcentaje_req, g.cupo as cupo, g.docente as docente, g.lunes as lun, g.martes as mar, g.miercoles as mie, g.jueves as jue, g.viernes as vie, g.sabado as sab, g.domingo as dom from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where g.id='"+ID+"';";
         ObservableList<MateriaGrupoDAO>listaMat= FXCollections.observableArrayList();
         try{
             MateriaGrupoDAO objMateria;
@@ -192,6 +229,15 @@ public class MateriaGrupoDAO {
             ResultSet res=stmt.executeQuery(query);
             while(res.next()){
                 objMateria=new MateriaGrupoDAO();
+                objMateria.clave=res.getString("clave");
+                objMateria.id_grupo=res.getInt("id");
+                objMateria.materia=res.getString("materia");
+                objMateria.creditos=res.getByte("creditos");
+                objMateria.grupo=res.getString("grupo");
+                objMateria.semestre=res.getByte("semestre");
+                objMateria.porcentaje_req=res.getByte("porcentaje_req");
+                objMateria.cupo= res.getByte("cupo");
+                objMateria.docente=res.getString("docente");
                 objMateria.lunes=res.getString("lun");
                 objMateria.martes=res.getString("mar");
                 objMateria.miercoles=res.getString("mie");
@@ -205,5 +251,17 @@ public class MateriaGrupoDAO {
             System.out.println(e.getMessage()+"\nError en MateriaDAO");
         }
         return listaMat;
+    }
+    public static String buscarClave(String id){
+        String clave=null;
+        String query="select m.clave as clave from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where g.id='"+id+"';";
+        try{
+            Statement stmt=Conexion.connection.createStatement();
+            ResultSet res= stmt.executeQuery(query);
+            while(res.next()){
+                clave=res.getString("clave");
+            }
+        }catch(Exception e){System.out.println("Error en PrerequisitoDAO");}
+        return clave;
     }
 }

@@ -124,4 +124,20 @@ public class AlumnoDAO {
         }
         return lista;
     }
+    public static void actualizarCarga(String no_control,byte cantidad, boolean op){
+        String query;
+        if(op){//sumar
+            query="update alumno set creditos_inscritos=creditos_inscritos+"+cantidad+" where no_control='"+no_control+"'";
+        }else{//restar
+            query="update alumno set creditos_inscritos=creditos_inscritos-"+cantidad+" where no_control='"+no_control+"'";
+        }
+        try{
+            Statement stmt=Conexion.connection.createStatement();
+            stmt.executeUpdate(query);
+            stmt.close();
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+            System.out.println("Error en AlumnoDAO, actualizar carga");
+        }
+    }
 }
