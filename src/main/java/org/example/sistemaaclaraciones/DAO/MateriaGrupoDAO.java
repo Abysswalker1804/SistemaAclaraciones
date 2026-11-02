@@ -162,8 +162,10 @@ public class MateriaGrupoDAO {
         this.domingo = domingo;
     }
 
-    public static ObservableList<MateriaGrupoDAO> CONSULTAR_Materia(String nombreMateria){
-        String query="select m.nombre as materia, m.clave as clave, g.id as id, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where nombre like '%"+nombreMateria+"%'";
+    public static ObservableList<MateriaGrupoDAO> CONSULTAR_Materia(String nombreMateria, boolean flag){
+        String query;
+        if(flag){query="select m.nombre as materia, m.clave as clave, g.id as id, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where nombre like '%"+nombreMateria+"%' and g.carrera = 'sistemas'";
+        }else{query="select m.nombre as materia, m.clave as clave, g.id as id, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where nombre like '%"+nombreMateria+"%' and g.carrera != 'sistemas'";}
         ObservableList<MateriaGrupoDAO>listaMat= FXCollections.observableArrayList();
         try{
             MateriaGrupoDAO objMateria;
@@ -191,8 +193,10 @@ public class MateriaGrupoDAO {
         }
         return listaMat;
     }
-    public static ObservableList<MateriaGrupoDAO> CONSULTAR_Clave(String nombreClave){
-        String query="select m.nombre as materia, m.clave as clave, g.id as id_grupo, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where m.clave like '%"+nombreClave+"%'";
+    public static ObservableList<MateriaGrupoDAO> CONSULTAR_Clave(String nombreClave,boolean flag){
+        String query;
+        if (flag){query="select m.nombre as materia, m.clave as clave, g.id as id_grupo, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where m.clave like '%"+nombreClave+"%' and g.carrera = 'sistemas'";
+        }else{query="select m.nombre as materia, m.clave as clave, g.id as id_grupo, g.grupo as grupo, g.docente as docente, g.cupo as cupo_disponible, g.lunes as lunes, g.martes as martes, g.miercoles as miercoles, g.jueves as jueves, g.viernes as viernes, g.sabado as sabado, g.domingo as domingo from materia m join materia_grupo mg on m.clave=mg.clave join grupo g on mg.id=g.id where m.clave like '%"+nombreClave+"%' and g.carrera != 'sistemas'";}
         ObservableList<MateriaGrupoDAO>listaMat= FXCollections.observableArrayList();
         try{
             MateriaGrupoDAO objMateria;
@@ -225,7 +229,7 @@ public class MateriaGrupoDAO {
         ObservableList<MateriaGrupoDAO>listaMat= FXCollections.observableArrayList();
         try{
             MateriaGrupoDAO objMateria;
-            Statement stmt= Conexion.connection.createStatement();
+            Statement stmt=Conexion.connection.createStatement();
             ResultSet res=stmt.executeQuery(query);
             while(res.next()){
                 objMateria=new MateriaGrupoDAO();

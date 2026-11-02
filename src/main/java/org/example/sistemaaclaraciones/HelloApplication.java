@@ -101,7 +101,8 @@ public class HelloApplication extends Application {
                 if(objAl!=null){
                     logged=true;
                     consola.appendText("\nBienvenido "+objAl.getNombre()+" !\n");
-                    lblPrompt.setText(prompt_base);
+                    prompt=prompt_base;
+                    lblPrompt.setText(prompt);
                     lblPrompt.setPrefWidth(longitud_prompt_base);
                     return;
                 }
@@ -128,9 +129,9 @@ public class HelloApplication extends Application {
                         consola.appendText("[YA SE ENCUENTRA EN MODO BASE]\n");
                     }else if(comando.matches("(?i)inscripcion")){
                         estado_actual=EstadosSAE.INSCRIPCION;
-                        prompt=prompt_ingresar;
+                        prompt=prompt_inscr;
                         lblPrompt.setText(prompt);
-                        lblPrompt.setPrefWidth(longitud_prompt_ingresar);
+                        lblPrompt.setPrefWidth(longitud_prompt_inscr);
                         consola.appendText("[MODO INSCRIPCIÓN]\n");
                         input.setPrefWidth(input.getWidth()-longitud_prompt_inscr);
                     }else if(comando.matches("(?i)finalizar")){
@@ -168,24 +169,21 @@ public class HelloApplication extends Application {
                             String [] partes=(comando).split("\\s+", 2); //Sólo dos parámetros
                             String accion = partes[0].toLowerCase();
                             String argumento = partes.length > 1 ? partes[1].trim() : "";
-                            String argumento2=partes[2].toLowerCase();
-                            if (accion.equals("grupos")){
-                                if(argumento.equals("externos")){
-                                    if (argumento2.isEmpty()){
-                                        consola.appendText("Debe especificar el nombre o la clave de la materia.\n");
-                                    }else if (argumento2.equals("?")) {
-                                        consola.appendText("Uso: grupos externos <CLAVE-MATERIA>\n");
-                                    } else {
-                                        buscarGruposExternos(argumento);
-                                    }
-                                }else{
-                                    if (argumento.isEmpty()){
-                                        consola.appendText("Debe especificar el nombre o la clave de la materia.\n");
-                                    }else if (argumento.equals("?")) {
-                                        consola.appendText("Uso: grupos <CLAVE-MATERIA>\n");
-                                    } else {
-                                        buscarGrupos(argumento);
-                                    }
+                            if (accion.equals("grupos_externos")){
+                                if (argumento.isEmpty()){
+                                    consola.appendText("Debe especificar el nombre o la clave de la materia.\n");
+                                }else if (argumento.equals("?")) {
+                                    consola.appendText("Uso: grupos_externos <CLAVE-MATERIA/NOMBRE-MATERIA>\n");
+                                } else {
+                                    buscarGruposExternos(argumento);
+                                }
+                            }else if(accion.equals("grupos")){
+                                if (argumento.isEmpty()){
+                                    consola.appendText("Debe especificar el nombre o la clave de la materia.\n");
+                                }else if (argumento.equals("?")) {
+                                    consola.appendText("Uso: grupos <CLAVE-MATERIA/NOMBRE-MATERIA>\n");
+                                } else {
+                                    buscarGrupos(argumento);
                                 }
                             }else if (accion.equals("horario")){
                                 if (argumento.isEmpty()){
@@ -229,9 +227,9 @@ public class HelloApplication extends Application {
                         input.setPrefWidth(input.getWidth()-longitud_prompt_base);
                     }else if(comando.matches("(?i)inscripcion")){
                         estado_actual=EstadosSAE.INSCRIPCION;
-                        prompt=prompt_ingresar;
+                        prompt=prompt_inscr;
                         lblPrompt.setText(prompt);
-                        lblPrompt.setPrefWidth(longitud_prompt_ingresar);
+                        lblPrompt.setPrefWidth(longitud_prompt_inscr);
                         consola.appendText("[MODO INSCRIPCIÓN]\n");
                         input.setPrefWidth(input.getWidth()-longitud_prompt_inscr);
                     }else if(comando.matches("(?i)finalizar")){
@@ -246,7 +244,15 @@ public class HelloApplication extends Application {
                                 if(objAl!=null && objAl.getCreditos_acumulados()>=235 && objAl.getSemestre()>=8){
                                     System.exit(0);
                                 }else {
-                                    consola.appendText("\nNo cuenta con los criterios para comprobar que son sus últimas materias.\nPor favor, envíe su aclaración manual al coordinador con el comando 'aclaración' de la siguiente forma:\n aclaracion <Descripción menor a 500 caracteres>.");
+                                    consola.appendText("\nNo cuenta con los criterios para comprobar que son sus últimas materias.\nPor favor, envíe su aclaración manual al coordinador con el comando 'aclaración' de la siguiente forma:\n aclaracion <Descripción de su problema>.");
+                                }
+                            }else if(accion.equals("aclaracion")){
+                                if (argumento.isEmpty()){
+                                    consola.appendText("Debe especificar su aclaración a enviar.\n");
+                                }else if (argumento.equals("?")) {
+                                    consola.appendText("Uso: aclaracion <Descripción de su problema>\n");
+                                }else{
+                                    mandarAclaracion(argumento);
                                 }
                             }else{
                                 consola.appendText("Comando no Reconocido!\n");
@@ -262,7 +268,7 @@ public class HelloApplication extends Application {
     private void buscarGrupos(String busqueda){
         if(busqueda.matches("^(ELW[1-7]|[A-Z]{3}-\\d{4})$")){
             //Es una clave
-            ObservableList<MateriaGrupoDAO> lista= MateriaGrupoDAO.CONSULTAR_Clave(busqueda);
+            ObservableList<MateriaGrupoDAO> lista= MateriaGrupoDAO.CONSULTAR_Clave(busqueda,true);
             if(lista.isEmpty()){
                 consola.appendText("\nNo se encontraron coincidencias");
                 return;
@@ -285,7 +291,7 @@ public class HelloApplication extends Application {
             }
         }else{
             //Es un nombre de materia
-            ObservableList<MateriaGrupoDAO> lista= MateriaGrupoDAO.CONSULTAR_Materia(busqueda);
+            ObservableList<MateriaGrupoDAO> lista= MateriaGrupoDAO.CONSULTAR_Materia(busqueda,true);
             if(lista.isEmpty()){
                 consola.appendText("\nNo se encontraron coincidencias");
                 return;
@@ -471,7 +477,59 @@ public class HelloApplication extends Application {
             }
         });
     }
-    private void buscarGruposExternos(String busqueda){} //Terminar
+    private void buscarGruposExternos(String busqueda){
+        if(busqueda.matches("^(ELW[1-7]|[A-Z]{3}-\\d{4})$")){
+            //Es una clave
+            ObservableList<MateriaGrupoDAO> lista= MateriaGrupoDAO.CONSULTAR_Clave(busqueda,false);
+            if(lista.isEmpty()){
+                consola.appendText("\nNo se encontraron coincidencias");
+                return;
+            }
+            String fila,clave="";
+            for (MateriaGrupoDAO grupo : lista) {
+                if(!clave.equals(grupo.getClave())){
+                    clave= grupo.getClave();
+                    fila=String.format("%n|%-70s|Clave: %-10s|%n",grupo.getMateria(),grupo.getClave());
+                    consola.appendText(fila);
+                }
+                fila = String.format(
+                        "|Grupo: %-5s |ID: %-4d |Docente: %-100s |Cupo:%5d%n",
+                        grupo.getGrupo(),
+                        grupo.getId_grupo(),
+                        grupo.getDocente(),
+                        grupo.getCupo_disponible()
+                );
+                consola.appendText(fila);
+            }
+        }else{
+            //Es un nombre de materia
+            ObservableList<MateriaGrupoDAO> lista= MateriaGrupoDAO.CONSULTAR_Materia(busqueda,false);
+            if(lista.isEmpty()){
+                consola.appendText("\nNo se encontraron coincidencias");
+                return;
+            }
+            String fila,clave="";
+            for (MateriaGrupoDAO grupo : lista) {
+                if(!clave.equals(grupo.getClave())){
+                    clave= grupo.getClave();
+                    fila=String.format("%n|%-70s|Clave: %-10s|%n",grupo.getMateria(),grupo.getClave());
+                    consola.appendText(fila);
+                }
+                fila = String.format(
+                        "|Grupo: %-5s |ID: %-4d |Docente: %-100s |Cupo:%5d%n",
+                        grupo.getGrupo(),
+                        grupo.getId_grupo(),
+                        grupo.getDocente(),
+                        grupo.getCupo_disponible()
+                );
+                consola.appendText(fila);
+            }
+        }
+    }
+    private void mandarAclaracion(String aclaracion){
+        AclaracionDAO.mandarAclaracion(objAl.getNo_control(), aclaracion);
+        System.exit(0);
+    }
     public static void main(String[] args) {
         launch();
     }
